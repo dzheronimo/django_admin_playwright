@@ -1,0 +1,23 @@
+<div class="kp-modal" id="{{ modal_id }}" aria-hidden="true">
+   <p id="office-sud-status" class="kp-form-help"></p>
+  <div class="kp-modal__backdrop" data-modal-close></div>
+
+  <div class="kp-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="{{ modal_id }}-title">
+    <header class="kp-modal__header">
+      <h2 id="{{ modal_id }}-title" class="kp-modal__title">
+        {% block modal_title %}{% endblock %}
+      </h2>
+      <button type="button" class="kp-modal__close" data-modal-close aria-label="Закрыть">
+        &times;
+      </button>
+    </header>
+
+    <div class="kp-modal__body">
+      {% block modal_body %}{% endblock %}
+    </div>
+
+    <footer class="kp-modal__footer">
+      {% block modal_footer %}{% endblock %}
+    </footer>
+  </div>
+</div>

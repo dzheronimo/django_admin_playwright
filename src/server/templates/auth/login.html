@@ -1,0 +1,94 @@
+{# server/templates/auth/login.html #}
+{% extends "base.html" %}
+
+{% block title %}Вход · Kwork Playwright Panel{% endblock %}
+
+{% block page_title %}Вход в систему{% endblock %}
+{% block page_subtitle %}
+    Введите свои данные, чтобы получить доступ к панели управления.
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="login-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="login-field">
+          <label for="{{ form.username.id_for_label }}">Логин</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+      </div>
+
+      <div class="login-field">
+          <label for="{{ form.password.id_for_label }}">Пароль</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+      </div>
+
+      <button type="submit" class="btn-login-submit">Войти</button>
+  </form>
+
+  <style>
+      .login-form {
+          max-width: 360px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 8px;
+      }
+
+      .login-form .errorlist {
+          list-style: none;
+          margin: 0 0 8px;
+          padding-left: 0;
+          color: #fca5a5;
+          font-size: 0.85rem;
+      }
+      
+      .login-field {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 0.85rem;
+      }
+
+      .login-field label {
+          color: var(--text-muted);
+      }
+
+      .login-field input {
+          background: #020617;
+          border-radius: 8px;
+          border: 1px solid var(--border, #1f2937);
+          padding: 8px 10px;
+          color: var(--text, #e5e7eb);
+          font-size: 0.9rem;
+      }
+
+      .login-field input:focus {
+          outline: none;
+          border-color: var(--accent, #3b82f6);
+          box-shadow: 0 0 0 1px rgba(59,130,246,.3);
+      }
+
+      .btn-login-submit {
+          margin-top: 4px;
+          border-radius: 999px;
+          padding: 8px 16px;
+          border: 1px solid var(--accent, #3b82f6);
+          background: radial-gradient(circle at top, #1d4ed8, #1e40af);
+          color: #fff;
+          font-size: 0.9rem;
+          cursor: pointer;
+          box-shadow: 0 10px 25px rgba(37,99,235,.45);
+          transition: transform .1s ease, box-shadow .1s ease, background .15s ease;
+          align-self: flex-start;
+      }
+
+      .btn-login-submit:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 14px 30px rgba(37,99,235,.55);
+          background: radial-gradient(circle at top, #2563eb, #1d4ed8);
+      }
+  </style>
+{% endblock %}

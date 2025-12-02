@@ -1,0 +1,12 @@
+[
+  {
+    "model": "applications.application",
+    "pk": 1,
+    "fields": {
+      "name": "Office.sud · пакетная подача",
+      "description": "Пакетная подача заявлений через Office.sud.kz из Excel.",
+      "code": "office_sud",
+      "url": "https://office.sud.kz"
+    }
+  }
+]

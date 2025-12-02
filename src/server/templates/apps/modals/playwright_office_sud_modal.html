@@ -1,0 +1,403 @@
+{# templates/apps/modals/playwright_office_sud_modal.html #}
+
+<div class="kp-modal" id="office-sud-modal" aria-hidden="true">
+    <div class="kp-modal__backdrop" data-modal-close></div>
+
+    <div class="kp-modal__dialog" role="dialog" aria-modal="true">
+        <header class="kp-modal__header">
+            <h2 class="kp-modal__title">Пакетная подача через Office.sud.kz</h2>
+            <button type="button" class="kp-modal__close" data-modal-close aria-label="Закрыть">
+                &times;
+            </button>
+        </header>
+
+        <div class="kp-modal__body">
+            <form id="playwright-office-sud-form" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="kp-form-row">
+                    <label for="id_batch_name" class="kp-form-label">Название пакета</label>
+                    <input
+                        type="text"
+                        name="batch_name"
+                        id="id_batch_name"
+                        class="kp-form-input"
+                        placeholder="Например: Иски по договору"
+                    >
+                    <p class="kp-form-help">
+                        Необязательно. Если оставить пустым — система подставит название автоматически.
+                    </p>
+                </div>
+
+                <div class="kp-form-row">
+                    <label for="id_excel_file" class="kp-form-label">Excel-файл с делами</label>
+                    <input
+                        type="file"
+                        name="excel_file"
+                        id="id_excel_file"
+                        class="kp-form-input"
+                        accept=".xlsx,.xls"
+                        required
+                    >
+                    <p class="kp-form-help">
+                        Формат: .xlsx, по шаблону системы. Файл будет загружен и обработан на сервере.
+                    </p>
+                </div>
+
+                <div class="kp-form-row">
+                    <label class="kp-form-label">Прогресс</label>
+                    <div class="kp-progress">
+                        <div
+                            class="kp-progress__inner"
+                            id="office-sud-progress"
+                            style="width: 0%;"
+                        ></div>
+                    </div>
+                    <p class="kp-progress-text" id="office-sud-progress-text">
+                        Пакет ещё не запущен.
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <footer class="kp-modal__footer">
+            <button type="button" class="kp-btn kp-btn--ghost" data-modal-close>
+                Отмена
+            </button>
+            <button type="submit" form="playwright-office-sud-form" class="kp-btn kp-btn--primary">
+                Запустить обработку
+            </button>
+        </footer>
+    </div>
+</div>
+
+{# === Стили модалки (оверлей, не ломает layout) === #}
+<style>
+    .kp-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(4, 7, 20, 0.78);
+        z-index: 999;
+    }
+    .kp-modal--open {
+        display: flex;
+    }
+    .kp-modal__backdrop {
+        position: absolute;
+        inset: 0;
+    }
+    .kp-modal__dialog {
+        position: relative;
+        max-width: 560px;
+        width: calc(100% - 3rem);
+        background: #050814;
+        border-radius: 20px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.7);
+        padding: 20px 24px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-size: 14px;
+    }
+    .kp-modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+    .kp-modal__title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .kp-modal__close {
+        border: none;
+        background: transparent;
+        color: #f97373;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+    }
+    .kp-modal__body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .kp-modal__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .kp-form-row {
+        margin-bottom: 10px;
+    }
+    .kp-form-label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: #e5e7eb;
+    }
+    .kp-form-input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.8);
+        padding: 7px 10px;
+        color: #e5e7eb;
+        font-size: 13px;
+    }
+    .kp-form-input:focus {
+        outline: none;
+        border-color: #f97373;
+        box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.5);
+    }
+    .kp-form-help {
+        margin-top: 4px;
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .kp-progress {
+        position: relative;
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        overflow: hidden;
+    }
+    .kp-progress__inner {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #f97373, #fb923c);
+        width: 0%;
+        transition: width 0.25s ease-out;
+    }
+    .kp-progress-text {
+        margin-top: 4px;
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .kp-btn {
+        border-radius: 999px;
+        padding: 6px 16px;
+        font-size: 13px;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+    .kp-btn--primary {
+        background: radial-gradient(circle at 20% 0%, #f97373, #fb923c);
+        color: #0b1020;
+        font-weight: 500;
+    }
+    .kp-btn--ghost {
+        background: transparent;
+        color: #e5e7eb;
+        border-color: rgba(148, 163, 184, 0.5);
+    }
+</style>
+
+{# === JS: открытие по клику на карточку приложения, закрытие по крестику/фону/ESC === #}
+<script>
+    (function () {
+        const APP_CODE = "office_sud";               // идентификатор приложения
+        const modal = document.getElementById('office-sud-modal');
+        if (!modal) return;
+
+        const cards = document.querySelectorAll('[data-open-app-code]');
+
+        function openModal() {
+            modal.classList.add('kp-modal--open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            modal.classList.remove('kp-modal--open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        // Открытие по клику на карточку с нужным кодом
+        cards.forEach(function (card) {
+            if (card.dataset.openAppCode === APP_CODE) {
+                card.addEventListener('click', openModal);
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openModal();
+                    }
+                });
+            }
+        });
+
+        // Закрытие по крестику / «Отмена» / клику по фону
+        modal.querySelectorAll('[data-modal-close]').forEach(function (el) {
+            el.addEventListener('click', closeModal);
+        });
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.classList.contains('kp-modal--open')) {
+                closeModal();
+            }
+        });
+    })();
+</script>
+<script>
+  (function () {
+    const form = document.getElementById("playwright-office-sud-form");
+    if (!form) return;
+
+    const progressBar = document.getElementById("office-sud-progress");
+    const progressText = document.getElementById("office-sud-progress-text");
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    let currentTaskId = null;
+    let progressTimer = null;
+
+    function setProgress(percent, text) {
+      if (progressBar) {
+        progressBar.style.width = (percent || 0) + "%";
+      }
+      if (progressText && text) {
+        progressText.textContent = text;
+      }
+    }
+
+    function stopProgressTimer() {
+      if (progressTimer) {
+        clearInterval(progressTimer);
+        progressTimer = null;
+      }
+    }
+
+    async function pollProgress(taskId) {
+      try {
+        const url = "{% url 'applications:office_sud_progress' 0 %}".replace("/0/", "/" + taskId + "/");
+        const resp = await fetch(url, {
+          method: "GET",
+          credentials: "same-origin",
+          headers: {"X-Requested-With": "XMLHttpRequest"},
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error || "Ошибка получения прогресса");
+        }
+
+        const percent = data.progress || 0;
+        const processed = data.processed || 0;
+        const total = data.total || 0;
+        const status = data.status || "running";
+
+        let text;
+        if (total > 0) {
+          text = `Обработано ${processed} из ${total} дел (${percent}%)`;
+        } else {
+          text = "Подготовка данных...";
+        }
+        setProgress(percent, text);
+
+        if (status === "success") {
+          stopProgressTimer();
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Запустить обработку";
+          }
+          progressText.textContent = "Пакет успешно обработан.";
+        } else if (status === "error") {
+          stopProgressTimer();
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Запустить обработку";
+          }
+          progressText.textContent = data.error || "Произошла ошибка при обработке пакета.";
+        }
+      } catch (err) {
+        stopProgressTimer();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Запустить обработку";
+        }
+        if (progressText) {
+          progressText.textContent = "Ошибка: " + err.message;
+        }
+      }
+    }
+
+    function startProgressPolling(taskId) {
+      currentTaskId = taskId;
+      stopProgressTimer();
+      progressTimer = setInterval(function () {
+        pollProgress(taskId);
+      }, 3000);
+      pollProgress(taskId);
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Отправляю...";
+      }
+      setProgress(0, "Отправка файла на сервер...");
+
+      const formData = new FormData(form);
+
+      try {
+        const resp = await fetch("{% url 'applications:office_sud_start' %}", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+          headers: {"X-Requested-With": "XMLHttpRequest"},
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Запустить обработку";
+          }
+          const msg = data.error || "Не удалось запустить задачу Office.sud";
+          if (progressText) {
+            progressText.textContent = msg;
+          }
+          return;
+        }
+
+        const taskId = data.task_id;
+        if (!taskId) {
+          throw new Error("Сервер не вернул идентификатор задачи");
+        }
+
+        if (progressText) {
+          progressText.textContent = "Задача запущена, идёт обработка...";
+        }
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Обработка...";
+        }
+
+        startProgressPolling(taskId);
+      } catch (err) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Запустить обработку";
+        }
+        if (progressText) {
+          progressText.textContent = "Ошибка: " + err.message;
+        }
+      }
+    });
+  })();
+</script>
+

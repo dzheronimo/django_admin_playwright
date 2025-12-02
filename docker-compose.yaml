@@ -1,0 +1,14 @@
+services:
+  django:
+    container_name: app
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./officesud_uploads:/project/officesud_uploads
+      - ./officesud_db:/project/officesud_db
+      - /var/run/docker.sock:/var/run/docker.sock  # чтобы subprocess мог дергать docker
+    environment:
+      OFFICESUD_DB_PATH: /project/officesud_db/db.sqlite3

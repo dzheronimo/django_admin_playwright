@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Главная · Kwork Playwright Panel{% endblock %}
+
+{% block page_title %}{% if user and user.is_authenticated %}Мои приложения{% endif %}{% endblock %}
+{% block page_subtitle %}
+    {% if user and user.is_authenticated %}
+        Выберите нужный модуль: {% for app in apps|slice:":1" %}{{ app.application.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if user and user.is_authenticated %}
+        <section class="dashboard-grid" aria-label="Приложения">
+            {% if apps %}
+                {% for app in apps %}
+                    <article
+                        class="app-card"
+                        data-open-app-code="{{ app.application.code|default_if_none:'office_sud' }}"
+                        role="button"
+                        tabindex="0"
+                    >
+                        <h2 class="app-card-title">{{ app.application }}</h2>
+                        {% if app.application.description %}
+                            <p class="app-card-sub">{{ app.application.description }}</p>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            {% endif %}
+        </section>
+
+        <section class="news-block" aria-label="Новости">
+            <div class="news-header">
+                <h2 class="news-title">Последние изменения</h2>
+                <span class="news-tag">Новости</span>
+            </div>
+
+            <div class="news-items">
+                <div class="news-item">
+                    Новость 1
+                    <span class="news-date">· 11.2025</span>
+                </div>
+                <div class="news-item">
+                    Новость 2
+                    <span class="news-date">· 20.11.2025</span>
+                </div>
+                <div class="news-item">
+                    <a href="#">Новость 3</a>
+                    <span class="news-date">· 11-11-2025</span>
+                </div>
+            </div>
+        </section>
+        {% include "apps/modals/playwright_office_sud_modal.html" %}
+    {% else %}
+        <section>
+            <div class="news-items">
+                <h3>Для просмотра требуется <a href="{% url 'login' %}">Авторизация</a></h3>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}
