@@ -1,0 +1,4 @@
+
+# local databases
+src/officesud_db/db.sqlite3
+*.sqlite3
