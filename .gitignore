@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/.gitignore
+/.idea/dataSources.xml
+/.idea/Django_playwright_001.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/src/application/officesud/~$data.xlsx
+/deploy.zip
