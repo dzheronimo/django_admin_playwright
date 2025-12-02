@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "server.apps.applications.apps.ApplicationsConfig",
     "server.apps.permissions.apps.PermissionsConfig",
     "server.apps.core.apps.CoreConfig",
-    "server.apps.browser_agent.apps.BrowserAgentConfig",
 ]
 
 MIDDLEWARE = [

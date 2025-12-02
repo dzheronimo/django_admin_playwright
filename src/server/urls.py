@@ -22,5 +22,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include("server.apps.core.urls")),
     path("api/apps/", include("server.apps.applications.urls")),
-    path("api/agent/", include("server.apps.browser_agent.urls", namespace="browser_agent")),
 ]

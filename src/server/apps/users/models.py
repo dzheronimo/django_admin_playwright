@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=12, unique=True, verbose_name='Телефонный номер')
+    phone_number = models.CharField(max_length=12, unique=True, blank=True, null=True, verbose_name='Телефонный номер')
 
     first_name = models.CharField(max_length=30, blank=True, null=True, verbose_name='Имя')
     last_name = models.CharField(max_length=30, blank=True, null=True, verbose_name='Фамилия')
@@ -65,7 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
 
-    REQUIRED_FIELDS = ['phone_number', 'email']
+    REQUIRED_FIELDS = ['email',]
 
     class Meta:
         ordering = ['first_name', 'last_name']

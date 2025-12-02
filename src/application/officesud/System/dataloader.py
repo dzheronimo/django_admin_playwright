@@ -11,7 +11,10 @@ DB_PATH = office_sqlite.DB_PATH  # или office_sqlite.db_path
 def load_excel_to_db(excel_file_path): 
     office_sqlite.check_and_initialize_db()
     batch_id = f"BATCH-{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
-    df = pd.read_excel(excel_file_path, dtype=str) 
+    try:
+        df = pd.read_excel(excel_file_path, dtype=str)
+    except Exception:
+        df = pd.read_csv(excel_file_path, dtype=str, sep=',')
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 

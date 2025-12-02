@@ -28,6 +28,12 @@ class UserAdminMixin(ModelAdmin):
         qs = super().get_queryset(request)
         return qs.prefetch_related("app_access__application")
 
+    def delete_queryset(self, request, queryset):
+        base_qs = queryset.model._default_manager.filter(
+            pk__in=queryset.values_list("pk", flat=True).distinct()
+        )
+        super().delete_queryset(request, base_qs)
+
 
 @admin.register(User)
 class UserAdmin(UserAdminMixin):
@@ -65,7 +71,7 @@ class UserAdmin(UserAdminMixin):
         perms = obj.app_access.all()
         perms_by_app_id = {p.application_id: p.is_access for p in perms}
 
-        parts = [f"<div><strong>Email:</strong> {obj.email}</div>"]
+        parts = []
 
         for app in Application.objects.all().order_by("id"):
             has_access = perms_by_app_id.get(app.id, False)

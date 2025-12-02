@@ -76,8 +76,8 @@ class UserWithAppsForm(forms.ModelForm):
             )
 
     def save(self, commit=True):
-        user = super().save(commit)
-
+        user = super().save(commit=False)
+        user.save()
         ApplicationAccessPermission = apps.get_model(
             'permissions',
             'ApplicationAccessPermission'
