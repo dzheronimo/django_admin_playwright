@@ -14,11 +14,19 @@ admin.site.login_form = MultiFieldAdminLoginForm
 class UserAdminMixin(ModelAdmin):
     list_display = (
         "username",
-        "full_name",
         "email",
+        "full_name",
         "is_active",
     )
     list_editable = ("is_active",)
+
+    fieldsets = (
+        (None, {
+            "fields": ("username", "email", "first_name",
+                       "last_name", "middle_name", "telegram_id",
+                       "phone_number", "role", "is_active", 'password'),
+        }),
+    )
 
     @admin.display(description="Пользователь")
     def full_name(self, obj):
@@ -42,20 +50,19 @@ class UserAdmin(UserAdminMixin):
 
     form = UserWithAppsForm
 
-    fieldsets = (
-        (None, {
-            "fields": ("username", "email", "first_name",
-                       "last_name", "middle_name", "telegram_id",
-                       "phone_number", "role", "is_active"),
-        }),
+    fieldsets = UserAdminMixin.fieldsets + (
         ("Доступ к приложениям", {
             "fields": ("applications",),
         }),
     )
 
+    def get_changeform_initial_data(self, request):
+        """Автоматически подставляем роль 'admin' при создании через эту админку"""
+        return {'role': 'executor'}
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        user_q = Q(is_superuser=False) & Q(is_staff=False) | Q(role="executor")
+        user_q = (Q(is_superuser=False) & Q(is_staff=False)) | Q(role="executor")
         return qs.filter(user_q).distinct()
 
     @admin.display(description="Доступы к приложениям")
@@ -91,6 +98,18 @@ class UserAdmin(UserAdminMixin):
 @admin.register(AdminUserProxy)
 class AdminUserAdmin(UserAdminMixin):
     """Приложение - Администраторы (прокси)"""
+    form = UserWithAppsForm
+
+    def get_changeform_initial_data(self, request):
+        """Автоматически подставляем роль 'admin' при создании через эту админку"""
+        return {'role': 'admin'}
+
+    def save_model(self, request, obj, form, change):
+        if obj.role == 'admin' and not (obj.is_staff or obj.is_superuser):
+            obj.is_staff = True
+            obj.is_superuser = True
+        super().save_model(request, obj, form, change)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         admin_q = Q(is_superuser=True) | Q(is_staff=True) | Q(role="admin")

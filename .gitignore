@@ -214,3 +214,5 @@ __marimo__/
 /.idea/vcs.xml
 /src/application/officesud/~$data.xlsx
 /deploy.zip
+/.idea/sqlDataSources.xml
+/.idea/sqldialects.xml

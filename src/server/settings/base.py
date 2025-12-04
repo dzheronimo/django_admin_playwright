@@ -81,10 +81,18 @@ WSGI_APPLICATION = "server.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+PROJECT_ROOT = BASE_DIR.parent.parent
+
+OFFICESUD_DB_DIR = PROJECT_ROOT / "officesud_db"
+OFFICESUD_DB_PATH = os.environ.get(
+    "OFFICESUD_DB_PATH",
+    str(OFFICESUD_DB_DIR / "db.sqlite3"),
+)
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": OFFICESUD_DB_PATH,
     }
 }
 
@@ -140,12 +148,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-OFFICESUD_DB_DIR = BASE_DIR.parent / "officesud_db"
-OFFICESUD_DB_PATH = os.environ.get(
-    "OFFICESUD_DB_PATH",
-    str(OFFICESUD_DB_DIR / "db.sqlite3"),
-)
 
 OFFICESUD_PLAYWRIGHT_IMAGE = "dj_pw_officesud_worker:latest"
 OFFICESUD_UPLOAD_DIR = BASE_DIR / "officesud_uploads"

@@ -4,11 +4,17 @@ services:
     build:
       context: .
       dockerfile: deploy/Dockerfile
+    restart: unless-stopped
     ports:
       - "8005:8005"
     volumes:
-      - ./officesud_uploads:/project/officesud_uploads
+      - officesud_uploads:/project/officesud_uploads
       - ./officesud_db:/project/officesud_db
       - /var/run/docker.sock:/var/run/docker.sock  # чтобы subprocess мог дергать docker
     environment:
       OFFICESUD_DB_PATH: /project/officesud_db/db.sqlite3
+    env_file:
+      - .env
+
+volumes:
+  officesud_uploads:

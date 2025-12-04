@@ -3,6 +3,8 @@ from django.apps import apps
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 
+from unfold.widgets import UnfoldAdminCheckboxSelectMultiple, UnfoldAdminPasswordInput
+
 from server.apps.applications.models import Application
 
 
@@ -48,19 +50,27 @@ class UserWithAppsForm(forms.ModelForm):
     """
     Форма пользователя с чекбоксами по приложениям
     """
+    password = forms.CharField(
+        label='Пароль',
+        widget=UnfoldAdminPasswordInput,
+        required=False,
+        help_text='Оставьте пустым, чтобы не менять пароль.'
+    )
+
     applications = forms.ModelMultipleChoiceField(
         queryset=Application.objects.all(),
         required=False,
-        widget=forms.CheckboxSelectMultiple,
+        widget=UnfoldAdminCheckboxSelectMultiple,
         label='Доступные приложения',
     )
 
     class Meta:
         model = User
-        exclude = ('date_joined', 'last_login')
+        exclude = ('date_joined', 'last_login', 'password')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['password'].initial = ''
 
         if self.instance.pk:
             ApplicationAccessPermission = apps.get_model(
@@ -77,22 +87,36 @@ class UserWithAppsForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.save()
-        ApplicationAccessPermission = apps.get_model(
-            'permissions',
-            'ApplicationAccessPermission'
-        )
 
-        selected_apps = list(self.cleaned_data.get('applications', []))
-        all_apps = list(Application.objects.all())
+        raw_password = self.cleaned_data.get('password')
+        if raw_password:
+            user.set_password(raw_password)
 
-        for app in all_apps:
-            perm, created = ApplicationAccessPermission.objects.get_or_create(
-                user=user,
-                application=app,
-                defaults={'is_access': False},
+        if commit:
+            user.save()
+
+        def save_permissions():
+            ApplicationAccessPermission = apps.get_model(
+                'permissions',
+                'ApplicationAccessPermission'
             )
-            perm.is_access = app in selected_apps
-            perm.save()
+
+            selected_apps = list(self.cleaned_data.get('applications', []))
+            all_apps = list(Application.objects.all())
+
+            for app in all_apps:
+                perm, created = ApplicationAccessPermission.objects.get_or_create(
+                    user=user,
+                    application=app,
+                    defaults={'is_access': False},
+                )
+                perm.is_access = app in selected_apps
+                perm.save()
+
+        if commit:
+            save_permissions()
+        else:
+
+            self.save_m2m = save_permissions
 
         return user
